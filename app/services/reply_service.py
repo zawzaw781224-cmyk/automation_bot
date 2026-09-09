@@ -1,4 +1,9 @@
-AUTO_REPLY_ENABLED = False
+AUTO_REPLY_ENABLED = True
+
+
+def set_auto_reply(enabled: bool):
+    global AUTO_REPLY_ENABLED
+    AUTO_REPLY_ENABLED = enabled
 
 
 def generate_reply(message_text: str) -> str:

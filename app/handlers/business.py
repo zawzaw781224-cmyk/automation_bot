@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 
 from app.services.reply_service import (
     generate_reply,
+    set_auto_reply,
     AUTO_REPLY_ENABLED,
 )
 
@@ -26,6 +27,16 @@ async def business_message_handler(
 
     # Don't reply to my own messages
     if sender.id == MY_TELEGRAM_ID:
+
+        # Control commands
+        if message.text.lower().strip() == "/on":
+            set_auto_reply(True)
+            return
+
+        if message.text.lower().strip() == "/off":
+            set_auto_reply(False)
+            return
+
         return
 
     # Don't reply when auto-reply is disabled
