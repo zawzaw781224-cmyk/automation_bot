@@ -1,18 +1,13 @@
-AUTO_REPLY_ENABLED = True
+CUSTOM_REPLY = (
+    "Message ရရှိပါတယ် 😊 "
+    "အခုတော့ ခဏမအားသေးလို့ နောက်မှ ပြန်ပြောပေးမယ်နော်။"
+)
 
 
-def set_auto_reply(enabled: bool):
-    global AUTO_REPLY_ENABLED
-    AUTO_REPLY_ENABLED = enabled
+def set_custom_reply(reply: str):
+    global CUSTOM_REPLY
+    CUSTOM_REPLY = reply
 
 
 def generate_reply(message_text: str) -> str:
-    text = message_text.lower().strip()
-
-    if text in ["hi", "hello", "ဟယ်လို", "မင်္ဂလာပါ"]:
-        return "ဟယ်လို 👋 အခုတော့ မအားသေးလို့ နောက်မှ ပြန်ပြောပေးမယ်နော် 😊"
-
-    if "နေကောင်း" in text:
-        return "နေကောင်းပါတယ် 😊 မေးပေးလို့ ကျေးဇူးပါ။"
-
-    return "Message ရရှိပါတယ် 😊 အခုတော့ ခဏမအားသေးလို့ နောက်မှ ပြန်ပြောပေးမယ်နော်။"
+    return CUSTOM_REPLY

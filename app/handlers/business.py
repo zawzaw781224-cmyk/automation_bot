@@ -2,7 +2,6 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from app.services import reply_service
-    
 
 
 MY_TELEGRAM_ID = 7230689165
@@ -22,16 +21,17 @@ async def business_message_handler(
     if not sender:
         return
 
-    # Don't reply to my own messages
+    # Only the owner can control the automation
     if sender.id == MY_TELEGRAM_ID:
 
-        # Control commands
-        if message.text.lower().strip() == "/on":
-            reply_service.set_auto_reply(True)
-            return
+        text = message.text.strip()
 
-        if message.text.lower().strip() == "/off":
-            reply_service.set_auto_reply(False)
+        if text.startswith("/setreply "):
+            new_reply = text[len("/setreply "):].strip()
+
+            if new_reply:
+                reply_service.set_custom_reply(new_reply)
+
             return
 
         return
