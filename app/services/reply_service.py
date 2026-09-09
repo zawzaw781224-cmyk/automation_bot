@@ -1,4 +1,4 @@
-AUTO_REPLY_ENABLED = True
+AUTO_REPLY_ENABLED = False
 
 
 def generate_reply(message_text: str) -> str:
