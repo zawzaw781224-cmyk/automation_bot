@@ -13,6 +13,18 @@ async def business_message_handler(
     if not message or not message.text:
         return
 
+    # Debug: show sender information
+    print("========== BUSINESS MESSAGE ==========")
+    print("Chat ID:", message.chat.id)
+
+    if message.from_user:
+        print("Sender ID:", message.from_user.id)
+        print("Sender Username:", message.from_user.username)
+        print("Sender Name:", message.from_user.full_name)
+
+    print("Message:", message.text)
+    print("======================================")
+
     reply = generate_reply(message.text)
 
     await context.bot.send_message(
