@@ -1,3 +1,6 @@
+AUTO_REPLY_ENABLED = True
+
+
 def generate_reply(message_text: str) -> str:
     text = message_text.lower().strip()
 

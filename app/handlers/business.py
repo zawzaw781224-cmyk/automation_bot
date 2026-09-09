@@ -1,7 +1,10 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from app.services.reply_service import generate_reply
+from app.services.reply_service import (
+    generate_reply,
+    AUTO_REPLY_ENABLED,
+)
 
 
 MY_TELEGRAM_ID = 7230689165
@@ -23,6 +26,10 @@ async def business_message_handler(
 
     # Don't reply to my own messages
     if sender.id == MY_TELEGRAM_ID:
+        return
+
+    # Don't reply when auto-reply is disabled
+    if not AUTO_REPLY_ENABLED:
         return
 
     reply = generate_reply(message.text)
