@@ -2,6 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from app.services import reply_service
+from app.services.ai_service import generate_ai_reply
 
 
 MY_TELEGRAM_ID = 7230689165
@@ -21,7 +22,7 @@ async def business_message_handler(
     if not sender:
         return
 
-    # Only the owner can control the automation
+    # Owner's commands
     if sender.id == MY_TELEGRAM_ID:
 
         text = message.text.strip()
@@ -36,11 +37,12 @@ async def business_message_handler(
 
         return
 
-    # Don't reply when auto-reply is disabled
+    # Auto reply OFF
     if not reply_service.AUTO_REPLY_ENABLED:
         return
 
-    reply = reply_service.generate_reply(message.text)
+    # Generate reply with AI
+    reply = await generate_ai_reply(message.text)
 
     await context.bot.send_message(
         chat_id=message.chat.id,
