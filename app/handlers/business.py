@@ -13,11 +13,11 @@ async def business_message_handler(
 
     sender = message.from_user
 
-    if sender:
-        print("SENDER_ID:", sender.id)
+    if not sender:
+        return
 
-    print("CHAT_ID:", message.chat.id)
-    print("TEXT:", message.text)
-
-    # Temporary: don't reply
-    return
+    await context.bot.send_message(
+        chat_id=message.chat.id,
+        text=f"Your Telegram ID is: {sender.id}",
+        business_connection_id=message.business_connection_id,
+    )
