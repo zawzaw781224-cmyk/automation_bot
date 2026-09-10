@@ -251,6 +251,7 @@ Always prioritize a natural, context-aware response over repeating stored inform
 async def generate_ai_reply(
     message_text: str,
     is_vip: bool = False,
+    conversation_history: list[dict] | None = None,
 ) -> str:
 
     vip_context = ""
@@ -282,6 +283,15 @@ message clearly requires professional/client behavior.
         "Content-Type": "application/json",
         "x-goog-api-key": GEMINI_API_KEY,
     }
+    history_text = ""
+
+    if conversation_history:
+        history_text = "\n\nPrevious conversation:\n"
+
+        for item in conversation_history:
+            history_text += (
+                f"{item['role']}: {item['content']}\n"
+            )
 
     data = {
         "system_instruction": {
@@ -297,7 +307,8 @@ message clearly requires professional/client behavior.
                     {
                         "text": (
                             vip_context
-                            + "\n\nUser message:\n"
+                            + history_text
+                            + "\n\nCurrent user message:\n"
                             + message_text
                         )
                     }
