@@ -70,16 +70,12 @@ async def business_message_handler(
     print("DATABASE SAVE START")
 
     try:
-        bot_message = Message(
-            telegram_user_id=sender.id,
-            chat_id=message.chat.id,
-            role="assistant",
-            content=reply,
-        )
-
-        db.add(bot_message)
+        db.add(user_message)
         db.commit()
-
+        print("USER MESSAGE SAVED")
+    except Exception as e:
+        db.rollback()
+        print("DATABASE ERROR:", e)
     finally:
         db.close()
 
