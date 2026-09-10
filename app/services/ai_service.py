@@ -285,6 +285,7 @@ message clearly requires professional/client behavior.
     }
     history_text = ""
 
+
     if conversation_history:
         history_text = "\n\nPrevious conversation:\n"
 
@@ -292,6 +293,8 @@ message clearly requires professional/client behavior.
             history_text += (
                 f"{item['role']}: {item['content']}\n"
             )
+    print("HISTORY SENT TO AI:",
+          history_text)
 
     data = {
         "system_instruction": {
