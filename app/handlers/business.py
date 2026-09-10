@@ -37,10 +37,6 @@ async def business_message_handler(
 
         return
 
-    # Auto reply OFF
-    if not reply_service.AUTO_REPLY_ENABLED:
-        return
-
     # Generate reply with AI
     reply = await generate_ai_reply(message.text)
 
