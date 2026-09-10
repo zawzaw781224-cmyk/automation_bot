@@ -28,7 +28,10 @@ async def business_message_handler(
     print("SENDER ID:", sender.id)
     print("SENDER NAME:", sender.full_name)
 
-    # Save incoming user message
+    # ==========================================
+    # 1. Save incoming user message
+    # ==========================================
+
     db = SessionLocal()
 
     try:
@@ -42,10 +45,19 @@ async def business_message_handler(
         db.add(user_message)
         db.commit()
 
+        print("USER MESSAGE SAVED")
+
+    except Exception as e:
+        db.rollback()
+        print("DATABASE ERROR:", e)
+
     finally:
         db.close()
 
-    # Owner's commands
+    # ==========================================
+    # 2. Owner's commands
+    # ==========================================
+
     if sender.id == MY_TELEGRAM_ID:
 
         text = message.text.strip()
@@ -60,24 +72,78 @@ async def business_message_handler(
 
         return
 
-    # Generate AI reply
+    # ==========================================
+    # 3. Get conversation history
+    # ==========================================
+
+    db = SessionLocal()
+
+    try:
+        history_rows = (
+            db.query(Message)
+            .filter(
+                Message.telegram_user_id == sender.id,
+                Message.chat_id == message.chat.id,
+            )
+            .order_by(Message.created_at.desc())
+            .limit(10)
+            .all()
+        )
+
+        print("HISTORY ROWS:", len(history_rows))
+
+        conversation_history = [
+            {
+                "role": row.role,
+                "content": row.content,
+            }
+            for row in reversed(history_rows)
+        ]
+
+        print("CONVERSATION HISTORY:", conversation_history)
+
+    finally:
+        db.close()
+
+    # ==========================================
+    # 4. Generate AI reply
+    # ==========================================
+
     reply = await generate_ai_reply(
         message.text,
         is_vip=(sender.id == VIP_TELEGRAM_ID),
+        conversation_history=conversation_history,
     )
 
+    # ==========================================
+    # 5. Save AI reply
+    # ==========================================
+
     db = SessionLocal()
-    print("DATABASE SAVE START")
 
     try:
-        db.add(user_message)
+        bot_message = Message(
+            telegram_user_id=sender.id,
+            chat_id=message.chat.id,
+            role="assistant",
+            content=reply,
+        )
+
+        db.add(bot_message)
         db.commit()
-        print("USER MESSAGE SAVED")
+
+        print("AI REPLY SAVED")
+
     except Exception as e:
         db.rollback()
         print("DATABASE ERROR:", e)
+
     finally:
         db.close()
+
+    # ==========================================
+    # 6. Send reply to Telegram
+    # ==========================================
 
     await context.bot.send_message(
         chat_id=message.chat.id,
