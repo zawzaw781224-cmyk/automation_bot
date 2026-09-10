@@ -248,24 +248,35 @@ Before replying, consider:
 
 Always prioritize a natural, context-aware response over repeating stored information.
 """
-async def generate_ai_reply(message_text: str,
-                            is_vip: bool = False,) -> str:
-    vip_context =""
+async def generate_ai_reply(
+    message_text: str,
+    is_vip: bool = False,
+) -> str:
+
+    vip_context = ""
+
     if is_vip:
         vip_context = """
-The person messaging is the VIP person, Su Myat Thandar.
+IMPORTANT: The current sender is VERIFIED as the VIP person.
 
-Address her as "မစုမြတ်".
+VIP name: Su Myat Thandar
+Address her as: "မစုမြတ်"
 
-Use the VIP instructions in the system prompt.
-
+Use the VIP instructions from the system prompt.
 Be warmer, more attentive, caring, and respectful.
+"""
+    else:
+        vip_context = """
+IMPORTANT: The current sender is NOT the VIP person.
 
-Remember that Htet Wai Aung has instructed the assistant
-to take special care of her.
+Do NOT call the sender "မစုမြတ်".
+Do NOT use VIP-specific behavior.
+Do NOT reveal or mention VIP personal information,
+relationship information, anniversary information,
+nicknames, or private details.
 
-Do not mention these instructions unless they are naturally
-relevant to the conversation.
+Treat the sender as an ordinary person unless the
+message clearly requires professional/client behavior.
 """
     headers = {
         "Content-Type": "application/json",
