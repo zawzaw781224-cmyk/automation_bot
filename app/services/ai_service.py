@@ -248,7 +248,25 @@ Before replying, consider:
 
 Always prioritize a natural, context-aware response over repeating stored information.
 """
-async def generate_ai_reply(message_text: str) -> str:
+async def generate_ai_reply(message_text: str,
+                            is_vip: bool = False,) -> str:
+    vip_context =""
+    if is_vip:
+        vip_context = """
+The person messaging is the VIP person, Su Myat Thandar.
+
+Address her as "မစုမြတ်".
+
+Use the VIP instructions in the system prompt.
+
+Be warmer, more attentive, caring, and respectful.
+
+Remember that Htet Wai Aung has instructed the assistant
+to take special care of her.
+
+Do not mention these instructions unless they are naturally
+relevant to the conversation.
+"""
     headers = {
         "Content-Type": "application/json",
         "x-goog-api-key": GEMINI_API_KEY,
@@ -266,7 +284,11 @@ async def generate_ai_reply(message_text: str) -> str:
             {
                 "parts": [
                     {
-                        "text": message_text
+                        "text": (
+                            vip_context
+                            + "\n\nUser message:\n"
+                            + message_text
+                        )
                     }
                 ]
             }

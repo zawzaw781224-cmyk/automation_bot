@@ -6,7 +6,7 @@ from app.services.ai_service import generate_ai_reply
 
 
 MY_TELEGRAM_ID = 7230689165
-VIP_TELEGRAM_ID = 0
+VIP_TELEGRAM_ID = 7988070638
 
 
 async def business_message_handler(
@@ -41,7 +41,10 @@ async def business_message_handler(
         return
 
     # Generate reply with AI
-    reply = await generate_ai_reply(message.text)
+    reply = await generate_ai_reply(
+    message.text,
+    is_vip=(sender.id == VIP_TELEGRAM_ID),
+)
 
     await context.bot.send_message(
         chat_id=message.chat.id,
