@@ -3,6 +3,8 @@ from telegram.ext import ContextTypes
 
 from app.services import reply_service
 from app.services.ai_service import generate_ai_reply
+from app.database import SessionLocal
+from app.models import Message
 
 
 MY_TELEGRAM_ID = 7230689165
@@ -22,8 +24,26 @@ async def business_message_handler(
 
     if not sender:
         return
+
     print("SENDER ID:", sender.id)
     print("SENDER NAME:", sender.full_name)
+
+    # Save incoming user message
+    db = SessionLocal()
+
+    try:
+        user_message = Message(
+            telegram_user_id=sender.id,
+            chat_id=message.chat.id,
+            role="user",
+            content=message.text,
+        )
+
+        db.add(user_message)
+        db.commit()
+
+    finally:
+        db.close()
 
     # Owner's commands
     if sender.id == MY_TELEGRAM_ID:
@@ -40,11 +60,28 @@ async def business_message_handler(
 
         return
 
-    # Generate reply with AI
+    # Generate AI reply
     reply = await generate_ai_reply(
-    message.text,
-    is_vip=(sender.id == VIP_TELEGRAM_ID),
-)
+        message.text,
+        is_vip=(sender.id == VIP_TELEGRAM_ID),
+    )
+
+    db = SessionLocal()
+    print("DATABASE SAVE START")
+
+    try:
+        bot_message = Message(
+            telegram_user_id=sender.id,
+            chat_id=message.chat.id,
+            role="assistant",
+            content=reply,
+        )
+
+        db.add(bot_message)
+        db.commit()
+
+    finally:
+        db.close()
 
     await context.bot.send_message(
         chat_id=message.chat.id,
