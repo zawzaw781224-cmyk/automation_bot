@@ -252,6 +252,7 @@ async def generate_ai_reply(
     message_text: str,
     is_vip: bool = False,
     conversation_history: list[dict] | None = None,
+    memories: list[str] | None = None,
 ) -> str:
 
     vip_context = ""
@@ -293,6 +294,12 @@ message clearly requires professional/client behavior.
             history_text += (
                 f"{item['role']}: {item['content']}\n"
             )
+    memory_text = ""
+    if memories:
+        memory_text = "\n\nLong-term memories:\n"
+        for memory in memories:
+            memory_text += f"- {memory}\n"    
+                    
     print("HISTORY SENT TO AI:",
           history_text)
 
@@ -310,6 +317,7 @@ message clearly requires professional/client behavior.
                     {
                         "text": (
                             vip_context
+                            + memory_text
                             + history_text
                             + "\n\nCurrent user message:\n"
                             + message_text
@@ -332,3 +340,87 @@ message clearly requires professional/client behavior.
     result = response.json()
 
     return result["candidates"][0]["content"]["parts"][0]["text"]
+
+async def extract_memory(message_text: str) -> str | None:
+    """
+    Analyze the user's message and determine whether
+    it contains important long-term information.
+
+    Return:
+        Memory text if important
+        None if not important
+    """
+
+    memory_prompt = """
+Analyze the user's message.
+
+Determine whether it contains useful information
+that should be remembered for future conversations.
+
+Examples of useful long-term memories:
+- Name
+- Preferences
+- Favorite food
+- Favorite color
+- Hobbies
+- Important goals
+- Learning interests
+- Important personal preferences
+
+Do NOT save:
+- Temporary feelings
+- Casual greetings
+- Questions
+- Small talk
+- Temporary plans
+- Sensitive secrets
+- Passwords
+- API keys
+- Tokens
+- Financial credentials
+
+If the message contains useful long-term information,
+return ONLY one short memory sentence.
+
+If there is nothing worth remembering,
+return exactly:
+
+NONE
+
+User message:
+""" + message_text
+
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": GEMINI_API_KEY,
+    }
+
+    data = {
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": memory_prompt
+                    }
+                ]
+            }
+        ]
+    }
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.post(
+            GEMINI_URL,
+            headers=headers,
+            json=data,
+        )
+
+    response.raise_for_status()
+
+    result = response.json()
+
+    memory = result["candidates"][0]["content"]["parts"][0]["text"].strip()
+
+    if memory.upper() == "NONE":
+        return None
+
+    return memory

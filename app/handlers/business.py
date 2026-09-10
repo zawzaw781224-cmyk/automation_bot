@@ -2,7 +2,8 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from app.services import reply_service
-from app.services.ai_service import generate_ai_reply
+from app.services.ai_service import generate_ai_reply, extract_memory
+from app.services.memory_service import save_memory,get_memories
 from app.database import SessionLocal
 from app.models import Message
 
@@ -106,6 +107,14 @@ async def business_message_handler(
         db.close()
 
     # ==========================================
+    # Long-term memories
+    # ==========================================
+
+    memories = get_memories(sender.id)
+
+    print("LONG-TERM MEMORIES:", memories)
+
+    # ==========================================
     # 4. Generate AI reply
     # ==========================================
 
@@ -113,7 +122,19 @@ async def business_message_handler(
         message.text,
         is_vip=(sender.id == VIP_TELEGRAM_ID),
         conversation_history=conversation_history,
+        memories=memories,
     )
+    # ==========================================
+    # 4. Extract and save long-term memory
+    # ==========================================
+
+    memory = await extract_memory(message.text)
+
+    if memory:
+        save_memory(
+            telegram_user_id=sender.id,
+            memory_text=memory,
+        )
 
     # ==========================================
     # 5. Save AI reply
