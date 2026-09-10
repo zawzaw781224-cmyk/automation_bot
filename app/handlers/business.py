@@ -6,6 +6,7 @@ from app.services.ai_service import generate_ai_reply
 
 
 MY_TELEGRAM_ID = 7230689165
+VIP_TELEGRAM_ID = 0
 
 
 async def business_message_handler(
@@ -21,6 +22,8 @@ async def business_message_handler(
 
     if not sender:
         return
+    print("SENDER ID:", sender.id)
+    print("SENDER NAME:", sender.full_name)
 
     # Owner's commands
     if sender.id == MY_TELEGRAM_ID:
